@@ -6,6 +6,8 @@ import App from './App'
 import store from './store'
 import '@/icons/index.js'
 
+import 'element-ui/lib/theme-default/index.css'
+
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false

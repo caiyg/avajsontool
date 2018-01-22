@@ -8,16 +8,33 @@
       <input type="file" id="fileUpload" style="display:none;" @change="fileChange" accept="image/*" @select="fileSelected">
     </div>
     <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
-      <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" 
+      <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
         :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
+      <div class="area-item" v-for="area in areas" :key="area.cityId" 
+        :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:area.points[2]-area.points[0]+'px', height:area.points[3]-area.points[1]+'px'}"></div>
       <img src="" alt="" id="preImg" v-show="imgUrl!==''">
     </div>
+    <el-dialog title="新的热区" v-model="newAreaToggle">
+      <el-form :model="newArea" label-width="100px">
+        <el-form-item label="名称：">
+          <el-input v-model="newArea.name" placeholder="城市名称"></el-input>
+        </el-form-item>
+        <el-form-item label="mapId：">
+          <el-input v-model="newArea.mapId" placeholder="城市对应的mapId"></el-input>
+        </el-form-item>
+        <div style="text-align:center">
+          <el-button type="primary" @click="addArea">确定</el-button>
+          <el-button>取消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import fs from 'fs'
   // import gm from 'gm'
+  import { Dialog, Form, FormItem, Input, Button } from 'element-ui'
   export default {
     name: 'avajsongeneratingtool',
     data () {
@@ -31,7 +48,17 @@
           y2: ''
         },
         // 鼠标按下时置true
-        moveTarget: false
+        moveTarget: false,
+        newAreaToggle: false,
+        newArea: {
+          name: '',
+          mapId: '',
+          coords: '',
+          cityId: '',
+          points: [],
+          href: 'equipmentBigData/recordDataList'
+        },
+        areas: []
       }
     },
     methods: {
@@ -47,20 +74,43 @@
       mousedownEvent (event) {
         event.preventDefault()
         event.stopPropagation()
-        this.tempPoint.x1 = this.tempPoint.x2 = event.offsetX
-        this.tempPoint.y1 = this.tempPoint.y2 = event.offsetY
+        console.log(event)
+        this.tempPoint.x1 = event.offsetX
+        this.tempPoint.x2 = event.offsetX
+        this.tempPoint.y1 = event.offsetY
+        this.tempPoint.y2 = event.offsetY
         this.moveTarget = true
       },
       mouseupEvent (event) {
-        // this.tempPoint.x2 = event.offsetX
-        // this.tempPoint.y2 = event.offsetY
+        this.tempPoint.x2 = event.offsetX
+        this.tempPoint.y2 = event.offsetY
         this.moveTarget = false
+        this.newAreaToggle = true
       },
       moveEvent (event) {
         if (this.moveTarget) {
           this.tempPoint.x2 = event.offsetX
           this.tempPoint.y2 = event.offsetY
         }
+      },
+      addArea () {
+        this.newArea.points = [this.tempPoint.x1, this.tempPoint.y1, this.tempPoint.x2, this.tempPoint.y2]
+        this.newArea.coords = this.newArea.points.join(',')
+        this.areas.push(Object.assign({}, this.newArea))
+        // this.newArea = {
+        //   name: '',
+        //   mapId: '',
+        //   coords: '',
+        //   cityId: '',
+        //   points: [],
+        //   href: 'equipmentBigData/recordDataList'
+        // }
+        // this.tempPoint = {
+        //   x1: '',
+        //   y1: '',
+        //   x2: '',
+        //   y2: ''
+        // }
       }
     },
     mounted () {
@@ -86,6 +136,13 @@
         e.preventDefault()
         e.stopPropagation()
       })
+    },
+    components: {
+      elDialog: Dialog,
+      elForm: Form,
+      elFormItem: FormItem,
+      elInput: Input,
+      elButton: Button
     }
   }
 </script>
@@ -104,6 +161,10 @@
     position: relative;
     .temp {
       border:1px solid red;
+      position: absolute;
+    }
+    .area-item{
+      border:1px solid green;
       position: absolute;
     }
   }

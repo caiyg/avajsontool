@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "element-ui": "^1.4.12",
     "gm": "^1.23.1",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
