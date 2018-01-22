@@ -7,8 +7,9 @@
       <span>请把图片拖至此处</span>
       <input type="file" id="fileUpload" style="display:none;" @change="fileChange" accept="image/*" @select="fileSelected">
     </div>
-    <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent">
-      <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" :top="tempPoint.y1" :left="tempPoint.x1" :width="tempPoint.x2-tempPoint.x1" :height="tempPoint.y2-tempPoint.y1"></div>
+    <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
+      <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" 
+        :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
       <img src="" alt="" id="preImg" v-show="imgUrl!==''">
     </div>
   </div>
@@ -28,7 +29,9 @@
           y1: '',
           x2: '',
           y2: ''
-        }
+        },
+        // 鼠标按下时置true
+        moveTarget: false
       }
     },
     methods: {
@@ -44,12 +47,20 @@
       mousedownEvent (event) {
         event.preventDefault()
         event.stopPropagation()
-        this.tempPoint.x1 = event.offsetX
-        this.tempPoint.y1 = event.offsetY
+        this.tempPoint.x1 = this.tempPoint.x2 = event.offsetX
+        this.tempPoint.y1 = this.tempPoint.y2 = event.offsetY
+        this.moveTarget = true
       },
       mouseupEvent (event) {
-        this.tempPoint.x2 = event.offsetX
-        this.tempPoint.y2 = event.offsetY
+        // this.tempPoint.x2 = event.offsetX
+        // this.tempPoint.y2 = event.offsetY
+        this.moveTarget = false
+      },
+      moveEvent (event) {
+        if (this.moveTarget) {
+          this.tempPoint.x2 = event.offsetX
+          this.tempPoint.y2 = event.offsetY
+        }
       }
     },
     mounted () {
