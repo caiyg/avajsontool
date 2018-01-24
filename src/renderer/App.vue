@@ -174,7 +174,7 @@
           that.imgUrl = e.dataTransfer.files[0].path
           console.log(e.dataTransfer.files[0])
           document.querySelector('#preImg').src = ''
-          fs.writeFileSync('./temp.png', fs.readFileSync(that.imgUrl))
+          fs.writeFileSync('/temp.png', fs.readFileSync(that.imgUrl))
           // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
