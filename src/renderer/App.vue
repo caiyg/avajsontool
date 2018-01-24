@@ -38,6 +38,7 @@
 
 <script>
   import fs from 'fs'
+  import path from 'path'
   // import gm from 'gm'
   import { Dialog, Form, FormItem, Input, Button, Message } from 'element-ui'
   export default {
@@ -81,12 +82,13 @@
         } else {
           this.imgUrl = e.target.value
           document.querySelector('#preImg').src = ''
-          fs.writeFileSync('./temp.png', fs.readFileSync(this.imgUrl))
+          // console.log(__dirname, path.join(__dirname), '************')
+          fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(this.imgUrl))
           // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
           // })
-          document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          document.querySelector('#preImg').src = path.resolve(__dirname) + './temp.png?_=' + new Date().getTime()
         }
       },
       fileSelected (item) {
@@ -108,7 +110,6 @@
         // this.tempPoint.y2 = event.pageY
         this.moveTarget = false
         this.newAreaToggle = true
-        console.log('x2y2', event.pageX, event.pageY)
       },
       moveEvent (event) {
         this.$nextTick(() => {
@@ -120,7 +121,6 @@
       },
       addArea () {
         let coords = JSON.parse(JSON.stringify(this.tempPoint))
-        console.log('当前坐标', coords)
         this.newArea.points = [coords.x1, coords.y1, coords.x2, coords.y2]
         // this.newArea.points = [this.tempPoint.x1, this.tempPoint.y1, this.tempPoint.x2, this.tempPoint.y2]
         this.newArea.coords = this.newArea.points.join(',')
@@ -209,6 +209,7 @@
   }
   .img-wrapper {
     position: relative;
+    border:1px solid #999;
     .temp {
       border:1px solid red;
       position: absolute;
