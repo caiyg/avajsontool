@@ -1,7 +1,8 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 
+import fs from 'fs'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -44,6 +45,15 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('open-save-dialog', function (event, content) {
+  console.log('zzz', event, content)
+  dialog.showSaveDialog({
+    title: 'test'
+  }, function (name) {
+    fs.writeFileSync(name, content)
+  })
 })
 
 /**

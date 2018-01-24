@@ -173,7 +173,8 @@
             value.cityId = this.cityId
             value.mapId = this.cityId + value.id
           })
-          fs.writeFileSync('./json/' + this.cityId + '.json', JSON.stringify(this.areas))
+          electron.ipcRenderer.send('open-save-dialog', JSON.stringify(this.areas))
+          // fs.writeFileSync('./json/' + this.cityId + '.json', JSON.stringify(this.areas))
         } else {
           Message.warning({
             message: '请先输入cityId'
