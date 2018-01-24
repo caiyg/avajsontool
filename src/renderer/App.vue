@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <div class="operation">
+      <el-input v-model="cityId" style="width:300px" placeholder="请输入城市ID"></el-input>
+      <el-button @click="buildJson">生成json</el-button>
+    </div>
     <div class="drag-pic" @click="selectFile" v-if="imgUrl===''">
       <p>
         <svg-icon icon-class="addFile" style="font-size: 80px;"></svg-icon>
@@ -10,24 +14,22 @@
     <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
       <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
         :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
-      <div class="area-item" v-for="area in areas" :key="area.mapId" 
+      <div class="area-item" v-for="area in areas" :key="area.id" 
         :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:Math.abs(area.points[2]-area.points[0])+'px', height:Math.abs(area.points[3]-area.points[1])+'px'}"></div>
       <img src="" alt="" id="preImg" v-show="imgUrl!==''">
     </div>
-    <div class="operation">
-      <el-button @click="buildJson">生成json</el-button>
-    </div>
+
     <el-dialog title="新的热区" v-model="newAreaToggle">
       <el-form :model="newArea" label-width="100px">
         <el-form-item label="名称：">
           <el-input v-model="newArea.name" placeholder="城市名称"></el-input>
         </el-form-item>
-        <el-form-item label="mapId：">
-          <el-input v-model="newArea.mapId" placeholder="城市对应的mapId"></el-input>
+        <el-form-item label="Id：">
+          <el-input v-model="newArea.id" placeholder="城市对应的Id"></el-input>
         </el-form-item>
         <div style="text-align:center">
           <el-button type="primary" @click="addArea">确定</el-button>
-          <el-button>取消</el-button>
+          <el-button @click="cancelModal">取消</el-button>
         </div>
       </el-form>
     </el-dialog>
@@ -37,7 +39,7 @@
 <script>
   import fs from 'fs'
   // import gm from 'gm'
-  import { Dialog, Form, FormItem, Input, Button } from 'element-ui'
+  import { Dialog, Form, FormItem, Input, Button, Message } from 'element-ui'
   export default {
     name: 'avajsongeneratingtool',
     data () {
@@ -59,9 +61,11 @@
           coords: '',
           cityId: '',
           points: [],
+          id: '',
           href: 'equipmentBigData/recordDataList'
         },
-        areas: []
+        areas: [],
+        cityId: ''
       }
     },
     methods: {
@@ -70,6 +74,20 @@
       },
       fileChange (e, file) {
         console.log(file, e)
+        e.preventDefault()
+        e.stopPropagation()
+        if (!/^image\//.test(e.dataTransfer.files[0].type)) {
+          alert('请选择图片！')
+        } else {
+          this.imgUrl = e.target.value
+          document.querySelector('#preImg').src = ''
+          fs.writeFileSync('./temp.png', fs.readFileSync(this.imgUrl))
+          // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
+          //   console.log(error)
+          // })
+          document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+        }
       },
       fileSelected (item) {
         console.log(item)
@@ -129,7 +147,20 @@
         console.log(this.areas)
       },
       buildJson () {
-        fs.writeFileSync('./map.json', JSON.stringify(this.areas))
+        if (this.cityId) {
+          this.areas.forEach((value) => {
+            value.cityId = this.cityId
+            value.mapId = this.cityId + value.id
+          })
+          fs.writeFileSync('./json/' + this.cityId + '.json', JSON.stringify(this.areas))
+        } else {
+          Message.warning({
+            message: '请先输入cityId'
+          })
+        }
+      },
+      cancelModal () {
+        this.newAreaToggle = true
       }
     },
     mounted () {
@@ -185,6 +216,13 @@
     .area-item{
       border:1px solid green;
       position: absolute;
+    }
+  }
+  .operation {
+    text-align: center;
+    margin-bottom: 10px;
+    .el-input {
+      margin-right: 20px;
     }
   }
 </style>
