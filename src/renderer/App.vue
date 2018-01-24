@@ -40,8 +40,10 @@
 <script>
   import fs from 'fs'
   import path from 'path'
+  import electron from 'electron'
   // import gm from 'gm'
   import { Dialog, Form, FormItem, Input, Button, Message } from 'element-ui'
+  const app = electron.remote.app
   export default {
     name: 'avajsongeneratingtool',
     data () {
@@ -167,6 +169,8 @@
     },
     mounted () {
       let that = this
+      console.log(app.getAppPath(), '-', app, app.getPath('temp'))
+      app.setPath('temp', path.resolve(__dirname, '../'))
       document.addEventListener('drop', function (e) {
         e.preventDefault()
         e.stopPropagation()
