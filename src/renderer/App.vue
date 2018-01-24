@@ -34,6 +34,7 @@
       </el-form>
     </el-dialog>
     <p>{{dirname}}</p>
+    <p>{{muLuname}}</p>
   </div>
 </template>
 
@@ -70,7 +71,8 @@
         },
         areas: [],
         cityId: '',
-        dirname: path.join(__dirname)
+        dirname: path.join(__dirname),
+        muLuname: ''
       }
     },
     methods: {
@@ -188,9 +190,10 @@
           //   console.log(error)
           // })
           // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
-          console.log(path.join('./temp.png?_=' + new Date().getTime()))
-          that.dirname = path.join('./temp.png?_=' + new Date().getTime())
-          document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+          // console.log((path.resolve(__dirname,'../../../', 'temp.png?_=' + new Date().getTime()))
+          that.muLuname = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+          document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preImg').src = path.join('/temp.png?_=' + new Date().getTime())
           // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
       })
