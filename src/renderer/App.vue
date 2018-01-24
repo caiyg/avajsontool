@@ -33,6 +33,7 @@
         </div>
       </el-form>
     </el-dialog>
+    <p>{{dirname}}</p>
   </div>
 </template>
 
@@ -66,7 +67,8 @@
           href: 'equipmentBigData/recordDataList'
         },
         areas: [],
-        cityId: ''
+        cityId: '',
+        dirname: path.join(__dirname)
       }
     },
     methods: {
@@ -88,7 +90,7 @@
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
           // })
-          document.querySelector('#preImg').src = path.resolve(__dirname) + './temp.png?_=' + new Date().getTime()
+          document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
       },
       fileSelected (item) {
@@ -160,7 +162,7 @@
         }
       },
       cancelModal () {
-        this.newAreaToggle = true
+        this.newAreaToggle = false
       }
     },
     mounted () {
@@ -174,12 +176,18 @@
           that.imgUrl = e.dataTransfer.files[0].path
           console.log(e.dataTransfer.files[0])
           document.querySelector('#preImg').src = ''
-          fs.writeFileSync('/temp.png', fs.readFileSync(that.imgUrl))
+          fs.writeFileSync('./temp.png', fs.readFileSync(that.imgUrl))
+          // fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(that.imgUrl))
+
           // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
           // })
-          document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          console.log(path.join('./temp.png?_=' + new Date().getTime()))
+          that.dirname = path.join('./temp.png?_=' + new Date().getTime())
+          document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
       })
       document.addEventListener('dragover', function (e) {
