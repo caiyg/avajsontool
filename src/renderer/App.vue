@@ -1,31 +1,32 @@
 <template>
   <div id="app">
-    <div class="operation">
-      <el-input v-model="cityId" style="width:300px" placeholder="请输入城市ID"></el-input>
-      <el-button @click="buildJson">生成json</el-button>
+    <div style="overflow:hidden;">
+      <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
+        <div class="drag-pic" @click="selectFile" v-if="imgUrl===''">
+          <p>
+            <svg-icon icon-class="addFile" style="font-size: 80px;"></svg-icon>
+          </p>
+          <span>请把图片拖至此处</span>
+          <input type="file" id="fileUpload" style="display:none;" @change="fileChange" accept="image/*" @select="fileSelected">
+        </div>
+        <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
+          :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
+        <div class="area-item" v-for="area in areas" :key="area.id" 
+          :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:Math.abs(area.points[2]-area.points[0])+'px', height:Math.abs(area.points[3]-area.points[1])+'px'}"></div>
+        <img src="" alt="" id="preImg" v-show="imgUrl!==''">
+      </div>
+      <div class="json-tree">
+        <h3>已生成json</h3>
+        <el-tree :data="treeJson"></el-tree>
+      </div>
     </div>
-    <div class="drag-pic" @click="selectFile" v-if="imgUrl===''">
-      <p>
-        <svg-icon icon-class="addFile" style="font-size: 80px;"></svg-icon>
-      </p>
-      <span>请把图片拖至此处</span>
-      <input type="file" id="fileUpload" style="display:none;" @change="fileChange" accept="image/*" @select="fileSelected">
-    </div>
-    <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
-      <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
-        :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
-      <div class="area-item" v-for="area in areas" :key="area.id" 
-        :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:Math.abs(area.points[2]-area.points[0])+'px', height:Math.abs(area.points[3]-area.points[1])+'px'}"></div>
-      <img src="" alt="" id="preImg" v-show="imgUrl!==''">
-    </div>
-
     <el-dialog title="新的热区" v-model="newAreaToggle">
       <el-form :model="newArea" label-width="100px">
         <el-form-item label="名称：">
-          <el-input v-model="newArea.name" placeholder="城市名称"></el-input>
+          <el-input v-model="newArea.name" placeholder="区县名称"></el-input>
         </el-form-item>
         <el-form-item label="Id：">
-          <el-input v-model="newArea.id" placeholder="城市对应的Id"></el-input>
+          <el-input v-model="newArea.id" placeholder="区县对应的Id"></el-input>
         </el-form-item>
         <div style="text-align:center">
           <el-button type="primary" @click="addArea">确定</el-button>
@@ -33,7 +34,13 @@
         </div>
       </el-form>
     </el-dialog>
-    <p>{{dirname}}</p>
+    <div class="operation">
+      <el-button @click="dragToggle = true">选取热区</el-button>
+      <el-input v-model="cityId" style="width:300px" placeholder="请输入城市ID"></el-input>
+      <el-button @click="buildJson">生成json</el-button>
+    </div>
+
+    <!-- <p>{{dirname}}</p> -->
   </div>
 </template>
 
@@ -42,7 +49,7 @@
   import path from 'path'
   import electron from 'electron'
   // import gm from 'gm'
-  import { Dialog, Form, FormItem, Input, Button, Message } from 'element-ui'
+  import { Dialog, Form, FormItem, Input, Button, Message, Tree } from 'element-ui'
   const app = electron.remote.app
   export default {
     name: 'avajsongeneratingtool',
@@ -70,7 +77,10 @@
         },
         areas: [],
         cityId: '',
-        dirname: path.join(__dirname)
+        dirname: path.join(__dirname),
+
+        // 选取开关
+        dragToggle: false
       }
     },
     methods: {
@@ -102,26 +112,33 @@
         event.preventDefault()
         event.stopPropagation()
         // console.log(event)
-        this.tempPoint.x1 = event.pageX
-        this.tempPoint.x2 = event.pageX
-        this.tempPoint.y1 = event.pageY
-        this.tempPoint.y2 = event.pageY
-        console.log('x1y1', event.pageX, event.pageY)
-        this.moveTarget = true
+        if (this.dragToggle) {
+          this.tempPoint.x1 = event.pageX
+          this.tempPoint.x2 = event.pageX
+          this.tempPoint.y1 = event.pageY
+          this.tempPoint.y2 = event.pageY
+          console.log('x1y1', event.pageX, event.pageY)
+          this.moveTarget = true
+        }
       },
       mouseupEvent (event) {
         // this.tempPoint.x2 = event.pageX
         // this.tempPoint.y2 = event.pageY
-        this.moveTarget = false
-        this.newAreaToggle = true
+        if (this.dragToggle) {
+          this.moveTarget = false
+          this.newAreaToggle = true
+          this.dragToggle = false
+        }
       },
       moveEvent (event) {
-        this.$nextTick(() => {
-          if (this.moveTarget) {
-            this.tempPoint.x2 = event.pageX
-            this.tempPoint.y2 = event.pageY
-          }
-        })
+        if (this.dragToggle) {
+          this.$nextTick(() => {
+            if (this.moveTarget) {
+              this.tempPoint.x2 = event.pageX
+              this.tempPoint.y2 = event.pageY
+            }
+          })
+        }
       },
       addArea () {
         let coords = JSON.parse(JSON.stringify(this.tempPoint))
@@ -204,13 +221,34 @@
       elForm: Form,
       elFormItem: FormItem,
       elInput: Input,
-      elButton: Button
+      elButton: Button,
+      elTree: Tree
+    },
+    computed: {
+      treeJson () {
+        return this.areas.map((item) => {
+          return {
+            label: item.name,
+            children: [
+              {
+                label: 'id:' + item.id
+              }, {
+                label: '坐标：' + item.coords
+              }
+            ]
+          }
+        })
+      }
     }
   }
 </script>
 
 <style lang="less">
   /* CSS */
+  body{
+    margin: 0;
+    padding: 0;
+  }
   .drag-pic {
     text-align: center;
     color:#555;
@@ -222,6 +260,9 @@
   .img-wrapper {
     position: relative;
     border:1px solid #999;
+    width: 691px;
+    height: 664px;
+    float: left;
     .temp {
       border:1px solid red;
       position: absolute;
@@ -231,9 +272,15 @@
       position: absolute;
     }
   }
+  .json-tree {
+    float: left;
+    margin-left: 20px;
+    min-width: 200px;
+  }
   .operation {
     text-align: center;
     margin-bottom: 10px;
+    margin-top: 20px;
     .el-input {
       margin-right: 20px;
     }
