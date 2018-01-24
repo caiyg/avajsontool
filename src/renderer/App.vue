@@ -10,9 +10,12 @@
     <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
       <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
         :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
-      <div class="area-item" v-for="area in areas" :key="area.cityId" 
-        :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:area.points[2]-area.points[0]+'px', height:area.points[3]-area.points[1]+'px'}"></div>
+      <div class="area-item" v-for="area in areas" :key="area.mapId" 
+        :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:Math.abs(area.points[2]-area.points[0])+'px', height:Math.abs(area.points[3]-area.points[1])+'px'}"></div>
       <img src="" alt="" id="preImg" v-show="imgUrl!==''">
+    </div>
+    <div class="operation">
+      <el-button @click="buildJson">生成json</el-button>
     </div>
     <el-dialog title="新的热区" v-model="newAreaToggle">
       <el-form :model="newArea" label-width="100px">
@@ -74,43 +77,59 @@
       mousedownEvent (event) {
         event.preventDefault()
         event.stopPropagation()
-        console.log(event)
-        this.tempPoint.x1 = event.offsetX
-        this.tempPoint.x2 = event.offsetX
-        this.tempPoint.y1 = event.offsetY
-        this.tempPoint.y2 = event.offsetY
+        // console.log(event)
+        this.tempPoint.x1 = event.pageX
+        this.tempPoint.x2 = event.pageX
+        this.tempPoint.y1 = event.pageY
+        this.tempPoint.y2 = event.pageY
+        console.log('x1y1', event.pageX, event.pageY)
         this.moveTarget = true
       },
       mouseupEvent (event) {
-        this.tempPoint.x2 = event.offsetX
-        this.tempPoint.y2 = event.offsetY
+        // this.tempPoint.x2 = event.pageX
+        // this.tempPoint.y2 = event.pageY
         this.moveTarget = false
         this.newAreaToggle = true
+        console.log('x2y2', event.pageX, event.pageY)
       },
       moveEvent (event) {
-        if (this.moveTarget) {
-          this.tempPoint.x2 = event.offsetX
-          this.tempPoint.y2 = event.offsetY
-        }
+        this.$nextTick(() => {
+          if (this.moveTarget) {
+            this.tempPoint.x2 = event.pageX
+            this.tempPoint.y2 = event.pageY
+          }
+        })
       },
       addArea () {
-        this.newArea.points = [this.tempPoint.x1, this.tempPoint.y1, this.tempPoint.x2, this.tempPoint.y2]
+        let coords = JSON.parse(JSON.stringify(this.tempPoint))
+        console.log('当前坐标', coords)
+        this.newArea.points = [coords.x1, coords.y1, coords.x2, coords.y2]
+        // this.newArea.points = [this.tempPoint.x1, this.tempPoint.y1, this.tempPoint.x2, this.tempPoint.y2]
         this.newArea.coords = this.newArea.points.join(',')
         this.areas.push(Object.assign({}, this.newArea))
-        // this.newArea = {
-        //   name: '',
-        //   mapId: '',
-        //   coords: '',
-        //   cityId: '',
-        //   points: [],
-        //   href: 'equipmentBigData/recordDataList'
-        // }
+        this.newArea = {
+          name: '',
+          mapId: '',
+          coords: '',
+          cityId: '',
+          points: [],
+          href: 'equipmentBigData/recordDataList'
+        }
         // this.tempPoint = {
         //   x1: '',
         //   y1: '',
         //   x2: '',
         //   y2: ''
         // }
+        this.tempPoint.x1 = ''
+        this.tempPoint.y1 = ''
+        this.tempPoint.x2 = ''
+        this.tempPoint.y2 = ''
+        this.newAreaToggle = false
+        console.log(this.areas)
+      },
+      buildJson () {
+        fs.writeFileSync('./map.json', JSON.stringify(this.areas))
       }
     },
     mounted () {
