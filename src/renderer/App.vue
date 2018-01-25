@@ -77,7 +77,7 @@
         areas: [],
         cityId: '',
         dirname: path.join(__dirname),
-
+        muLuname: '',
         // 选取开关
         dragToggle: false
       }
@@ -205,9 +205,15 @@
           //   console.log(error)
           // })
           // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
-          console.log(path.join('./temp.png?_=' + new Date().getTime()))
-          that.dirname = path.join('./temp.png?_=' + new Date().getTime())
-          document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+          // console.log(path.join('./temp.png?_=' + new Date().getTime()))
+          // that.dirname = path.join('./temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+
+          // console.log((path.resolve(__dirname,'../../../', 'temp.png?_=' + new Date().getTime()))
+          // that.muLuname = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+          document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preImg').src = path.join('/temp.png?_=' + new Date().getTime())
+
           // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
 
