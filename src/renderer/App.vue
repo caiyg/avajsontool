@@ -221,7 +221,7 @@
         console.log('--------')
         fs.writeFileSync('./temp.png', fs.readFileSync(filePath))
         that.imgUrl = filePath
-        document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+        document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
       })
       document.addEventListener('dragover', function (e) {
         e.preventDefault()
