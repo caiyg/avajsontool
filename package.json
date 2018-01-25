@@ -1,7 +1,7 @@
 {
   "name": "avajsongeneratingtool",
   "version": "0.0.0",
-  "author": "蔡瑜桂 <cyghenry@163.com>",
+  "author": "AVA <cyghenry@163.com>",
   "description": "An electron-vue project",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "avajsongeneratingtool",
+    "productName": "奥威亚自定义地图json生成工具",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"

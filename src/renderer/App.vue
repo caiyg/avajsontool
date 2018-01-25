@@ -7,7 +7,6 @@
             <svg-icon icon-class="addFile" style="font-size: 80px;"></svg-icon>
           </p>
           <span>请把图片拖至此处</span>
-          <input type="file" id="fileUpload" style="display:none;" @change="fileChange" accept="image/*" @select="fileSelected">
         </div>
         <div class="temp" v-if="tempPoint.x1&&tempPoint.y1&&tempPoint.x2&&tempPoint.y2" draggable="true"
           :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
@@ -50,7 +49,7 @@
   import electron from 'electron'
   // import gm from 'gm'
   import { Dialog, Form, FormItem, Input, Button, Message, Tree } from 'element-ui'
-  const app = electron.remote.app
+  // const app = electron.remote.app
   export default {
     name: 'avajsongeneratingtool',
     data () {
@@ -85,7 +84,7 @@
     },
     methods: {
       selectFile () {
-        document.querySelector('#fileUpload').click()
+        electron.ipcRenderer.send('open-select-dialog')
       },
       fileChange (e, file) {
         console.log(file, e)
@@ -187,8 +186,8 @@
     },
     mounted () {
       let that = this
-      console.log(app.getAppPath(), '-', app, app.getPath('temp'))
-      app.setPath('temp', path.resolve(__dirname, '../'))
+      // console.log(app.getAppPath(), '-', app, app.getPath('temp'))
+      // app.setPath('temp', path.resolve(__dirname, '../'))
       document.addEventListener('drop', function (e) {
         e.preventDefault()
         e.stopPropagation()
@@ -211,6 +210,12 @@
           document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
           // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
+
+        electron.ipcRenderer.on('image-selected', function (event, path) {
+          console.log('--------', path)
+          fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(path))
+          document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+        })
       })
       document.addEventListener('dragover', function (e) {
         e.preventDefault()

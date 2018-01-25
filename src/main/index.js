@@ -3,6 +3,9 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 
 import fs from 'fs'
+
+// import path from 'path'
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -47,12 +50,24 @@ app.on('activate', () => {
   }
 })
 
+// 保存json文件
 ipcMain.on('open-save-dialog', function (event, content) {
-  console.log('zzz', event, content)
   dialog.showSaveDialog({
-    title: 'test'
+    title: '保存'
   }, function (name) {
     fs.writeFileSync(name, content)
+  })
+})
+
+ipcMain.on('open-select-dialog', function (event, options) {
+  dialog.showOpenDialog({
+    filters: [
+      {name: 'Images', extensions: ['jpg', 'png', 'gif']}
+    ],
+    properties: ['openFile', 'showHiddenFiles']
+  }, function (filePath) {
+    console.log(event, filePath, '******')
+    event.sender.send('image-selected', filePath[0])
   })
 })
 
