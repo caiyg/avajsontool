@@ -216,12 +216,12 @@
 
           // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
-
-        electron.ipcRenderer.on('image-selected', function (event, path) {
-          console.log('--------', path)
-          fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(path))
-          document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
-        })
+      })
+      electron.ipcRenderer.on('image-selected', function (event, filePath) {
+        console.log('--------')
+        fs.writeFileSync('./temp.png', fs.readFileSync(filePath))
+        that.imgUrl = filePath
+        document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
       })
       document.addEventListener('dragover', function (e) {
         e.preventDefault()
