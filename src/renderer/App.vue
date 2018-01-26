@@ -16,7 +16,8 @@
       </div>
       <div class="json-tree">
         <h3>已生成json</h3>
-        <el-tree :data="treeJson"></el-tree>
+        <el-tree :data="treeJson" :render-content="renderContent" style="min-width:250px;" node-key="id" @node-expand="nodeExpand" default-expand-all :props="defaultProps"></el-tree>
+        <!-- <el-tree :data="treeJson" node-key="id"></el-tree> -->
       </div>
     </div>
     <el-dialog title="新的热区" v-model="newAreaToggle">
@@ -25,7 +26,9 @@
           <el-input v-model="newArea.name" placeholder="区县名称"></el-input>
         </el-form-item>
         <el-form-item label="Id：">
-          <el-input v-model="newArea.id" placeholder="区县对应的Id"></el-input>
+          <div @keyup.enter="addArea">
+            <el-input v-model="newArea.id" placeholder="区县对应的Id"></el-input>
+          </div>
         </el-form-item>
         <div style="text-align:center">
           <el-button type="primary" @click="addArea">确定</el-button>
@@ -74,12 +77,33 @@
           id: '',
           href: 'equipmentBigData/recordDataList'
         },
-        areas: [],
+        // areas: [],
+        areas: [{
+          cityId: '',
+          coords: '138,257,386,396',
+          href: 'equipmentBigData/recordDataList',
+          id: 'fdsa',
+          mapId: '',
+          name: 'fdsa',
+          points: [138, 257, 386, 396]
+        }, {
+          cityId: '',
+          coords: '493,466,588,502',
+          href: 'equipmentBigData/recordDataList',
+          id: 'gfr',
+          mapId: '',
+          name: 'gfd',
+          points: [493, 466, 588, 502]
+        }],
         cityId: '',
         dirname: path.join(__dirname),
         muLuname: '',
         // 选取开关
-        dragToggle: false
+        dragToggle: false,
+        defaultProps: {
+          children: 'children',
+          label: 'label'
+        }
       }
     },
     methods: {
@@ -164,15 +188,20 @@
         this.tempPoint.x2 = ''
         this.tempPoint.y2 = ''
         this.newAreaToggle = false
-        console.log(this.areas)
       },
+      // 点击生成json按钮 传到主进程
       buildJson () {
         if (this.cityId) {
-          this.areas.forEach((value) => {
-            value.cityId = this.cityId
-            value.mapId = this.cityId + value.id
+          let areas = this.areas.map((value) => {
+            return {
+              cityId: this.cityId,
+              mapId: this.cityId + value.id,
+              coords: value.coords,
+              href: value.href,
+              name: value.name
+            }
           })
-          electron.ipcRenderer.send('open-save-dialog', JSON.stringify(this.areas))
+          electron.ipcRenderer.send('open-save-dialog', JSON.stringify(areas), this.cityId)
           // fs.writeFileSync('./json/' + this.cityId + '.json', JSON.stringify(this.areas))
         } else {
           Message.warning({
@@ -182,6 +211,51 @@
       },
       cancelModal () {
         this.newAreaToggle = false
+        // this.newArea.name = ''
+        // this.newArea.id = ''
+      },
+      // 渲染el-tree
+      renderContent (h, {node, data, store}) {
+        // console.log(node, store, data)
+        return (
+          <span >
+            <span>
+              <span>{node.label}</span>
+            </span>
+            { (!node.isLeaf) && (
+              <span style="float: right; margin-right: 10px; margin-left:10px;" >
+                <button type="button" class="el-button el-button--default el-button--mini">
+                  <span on-click={ (e) => this.remove(e, store, data) }>删除</span>
+                </button>
+              </span>
+            )
+            }
+
+          </span>)
+      },
+      // remove (node, data) {
+      //   console.log(node, data)
+      //   const parent = node.parent
+      //   const children = parent.data.children || parent.data
+      //   const index = children.findIndex(d => d.id === data.id)
+      //   children.splice(index, 1)
+      // }
+      remove (e, store, data) {
+        e.preventDefault()
+        e.stopPropagation()
+        console.log(store, data)
+        // const parent = node.parent
+        // const children = parent.data.children || parent.data
+        // const index = children.findIndex(d => d.id === data.id)
+        // children.splice(index, 1)
+        // store.remove(data)
+        let index = this.treeJson.findIndex((value) => {
+          return value.label === data.label
+        })
+        this.areas.splice(index, 1)
+      },
+      nodeExpand (data, node, obj) {
+        console.log(data)
       }
     },
     mounted () {
@@ -218,7 +292,7 @@
         }
       })
       electron.ipcRenderer.on('image-selected', function (event, filePath) {
-        console.log('--------')
+        // console.log('--------')
         fs.writeFileSync('./temp.png', fs.readFileSync(filePath))
         that.imgUrl = filePath
         document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
@@ -236,15 +310,31 @@
       elButton: Button,
       elTree: Tree
     },
+    watch: {
+      newAreaToggle: function (newV, oldV) {
+        if (newV) {
+          this.newArea.name = ''
+          this.newArea.id = ''
+        } else if (!newV) {
+          this.tempPoint.x1 = ''
+          this.tempPoint.y1 = ''
+          this.tempPoint.x2 = ''
+          this.tempPoint.y2 = ''
+        }
+      }
+    },
     computed: {
       treeJson () {
         return this.areas.map((item) => {
           return {
             label: item.name,
+            id: item.id + item.name,
             children: [
               {
-                label: 'id:' + item.id
+                id: item.id,
+                label: 'id：' + item.id
               }, {
+                id: item.coords,
                 label: '坐标：' + item.coords
               }
             ]

@@ -50,12 +50,23 @@ app.on('activate', () => {
   }
 })
 
-// 保存json文件
-ipcMain.on('open-save-dialog', function (event, content) {
+// 保存json文件 打开保存选择框
+ipcMain.on('open-save-dialog', function (event, content, cityId) {
   dialog.showSaveDialog({
-    title: '保存'
+    title: '保存',
+    message: cityId,
+    defaultPath: cityId,
+    filters: [
+      {name: '', extensions: ['json']}
+    ]
   }, function (name) {
-    fs.writeFileSync(name, content)
+    if (!name) {
+      return
+    }
+    // fs.writeFileSync(name, content)
+    fs.writeFile(name, content, () => {
+      console.log('异步写入文件')
+    })
   })
 })
 
@@ -66,7 +77,7 @@ ipcMain.on('open-select-dialog', function (event, options) {
     ],
     properties: ['openFile', 'showHiddenFiles']
   }, function (filePath) {
-    console.log(event, filePath, '******')
+    // console.log(event, filePath, '******')
     event.sender.send('image-selected', filePath[0])
   })
 })
