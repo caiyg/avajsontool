@@ -78,6 +78,9 @@ ipcMain.on('open-select-dialog', function (event, options) {
     properties: ['openFile', 'showHiddenFiles']
   }, function (filePath) {
     // console.log(event, filePath, '******')
+    if (!filePath) {
+      return
+    }
     event.sender.send('image-selected', filePath[0])
   })
 })

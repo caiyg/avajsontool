@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { Button, Message } from 'element-ui'
+import { Button } from 'element-ui'
 export default {
   name: 'index',
   data () {
@@ -27,8 +27,11 @@ export default {
       })
     },
     toZdkt () {
-      Message.success({
-        message: '敬请期待！'
+      // Message.success({
+      //   message: '敬请期待！'
+      // })
+      this.$router.push({
+        name: 'zdkt'
       })
     }
   }

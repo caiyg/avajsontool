@@ -12,11 +12,11 @@
           :style="{left:tempPoint.x1+'px',top:tempPoint.y1+'px',width:tempPoint.x2-tempPoint.x1+'px',height:tempPoint.y2-tempPoint.y1+'px'}"></div>
         <div class="area-item" v-for="area in areas" :key="area.id" 
           :style="{left:area.points[0]+'px', top:area.points[1]+'px', width:Math.abs(area.points[2]-area.points[0])+'px', height:Math.abs(area.points[3]-area.points[1])+'px'}"></div>
-        <img src="" alt="" id="preImg" v-show="imgUrl!==''">
+        <img src="" alt="" id="preZdktImg" v-show="imgUrl!==''">
       </div>
       <div class="json-tree">
+          <h3>专递课堂 区县地图生成</h3>
         <div class="operation">
-          <h3>录播运营中心 区县地图生成</h3>
           <el-button @click="selectHotMap">选取热区</el-button>
           <!-- <el-button @click="dragToggle = true">选取热区</el-button> -->
           <el-input v-model="cityId" style="width:300px" placeholder="请输入城市ID"></el-input>
@@ -62,7 +62,7 @@
   import { Dialog, Form, FormItem, Input, Button, Message, Tree } from 'element-ui'
   // const app = electron.remote.app
   export default {
-    name: 'avajsongeneratingtool',
+    name: 'avajsongeneratingtool-zdkt',
     data () {
       return {
         imgUrl: '',
@@ -83,7 +83,7 @@
           cityId: '',
           points: [],
           id: '',
-          href: 'equipmentBigData/recordDataList'
+          href: 'map.html#/schedules/'
         },
         areas: [],
         // areas: [{
@@ -128,14 +128,14 @@
           alert('请选择图片！')
         } else {
           this.imgUrl = e.target.value
-          document.querySelector('#preImg').src = ''
+          document.querySelector('#preZdktImg').src = ''
           // console.log(__dirname, path.join(__dirname), '************')
           fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(this.imgUrl))
-          // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          // document.querySelector('#preZdktImg').src = './temp.png?_=' + new Date().getTime()
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
           // })
-          document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
+          document.querySelector('#preZdktImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
       },
       fileSelected (item) {
@@ -185,7 +185,7 @@
           coords: '',
           cityId: '',
           points: [],
-          href: 'equipmentBigData/recordDataList'
+          href: 'map.html#/schedules/'
         }
         // this.tempPoint = {
         //   x1: '',
@@ -213,7 +213,7 @@
               cityId: this.cityId,
               mapId: this.cityId + value.id,
               coords: value.coords,
-              href: value.href,
+              href: value.href + this.cityId + '/' + this.cityId + value.id,
               name: value.name
             }
           })
@@ -303,33 +303,33 @@
         } else {
           that.imgUrl = e.dataTransfer.files[0].path
           console.log(e.dataTransfer.files[0])
-          document.querySelector('#preImg').src = ''
+          document.querySelector('#preZdktImg').src = ''
           fs.writeFileSync('./temp.png', fs.readFileSync(that.imgUrl))
           // fs.writeFileSync(path.resolve('/temp.png'), fs.readFileSync(that.imgUrl))
 
-          // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          // document.querySelector('#preZdktImg').src = './temp.png?_=' + new Date().getTime()
           // gm('./temp.png').resize(100, 100, '!').write('./temp.png', error => {
           //   console.log(error)
           // })
-          // document.querySelector('#preImg').src = './temp.png?_=' + new Date().getTime()
+          // document.querySelector('#preZdktImg').src = './temp.png?_=' + new Date().getTime()
           // console.log(path.join('./temp.png?_=' + new Date().getTime()))
           // that.dirname = path.join('./temp.png?_=' + new Date().getTime())
-          // document.querySelector('#preImg').src = path.join('./temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preZdktImg').src = path.join('./temp.png?_=' + new Date().getTime())
 
           // console.log((path.resolve(__dirname,'../../../', 'temp.png?_=' + new Date().getTime()))
           // that.muLuname = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
-          document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+          document.querySelector('#preZdktImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
           that.isShowImage = true
-          // document.querySelector('#preImg').src = path.join('/temp.png?_=' + new Date().getTime())
+          // document.querySelector('#preZdktImg').src = path.join('/temp.png?_=' + new Date().getTime())
 
-          // document.querySelector('#preImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
+          // document.querySelector('#preZdktImg').src = path.resolve(__dirname) + '/temp.png?_=' + new Date().getTime()
         }
       })
       electron.ipcRenderer.on('image-selected', function (event, filePath) {
         // console.log('--------')
         fs.writeFileSync('./temp.png', fs.readFileSync(filePath))
         that.imgUrl = filePath
-        document.querySelector('#preImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
+        document.querySelector('#preZdktImg').src = path.join(__dirname, '../../../..', 'temp.png?_=' + new Date().getTime())
         that.isShowImage = true
       })
       document.addEventListener('dragover', function (e) {
@@ -381,6 +381,8 @@
 </script>
 
 <style lang="less">
+@imgWidth: 700px;
+@imgHeight: 750px;
   /* CSS */
   body{
     margin: 0;
@@ -390,15 +392,15 @@
     text-align: center;
     color:#555;
   }
-  #preImg {
-    width: 691px;
-    height: 664px;
+  #preZdktImg {
+    width: @imgWidth;
+    height: @imgHeight;
   }
   .img-wrapper {
     position: relative;
     border:1px solid #999;
-    width: 691px;
-    height: 664px;
+    width: @imgWidth;
+    height: @imgHeight;
     float: left;
     .temp {
       border:1px solid red;
