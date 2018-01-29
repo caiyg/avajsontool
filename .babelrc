@@ -16,6 +16,9 @@
           "targets": { "node": 7 }
         }],
         "stage-0"
+      ],
+      "plugins": [
+        "transform-vue-jsx"
       ]
     },
     "renderer": {
@@ -35,6 +38,9 @@
           "modules": false
         }],
         "stage-0"
+      ],
+      "plugins": [
+        "transform-vue-jsx"
       ]
     }
   },

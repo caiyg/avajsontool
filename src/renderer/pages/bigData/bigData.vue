@@ -16,8 +16,8 @@
       </div>
       <div class="json-tree">
         <div class="operation">
-          <!-- <el-button @click="selectHotMap">选取热区</el-button> -->
-          <el-button @click="dragToggle = true">选取热区</el-button>
+          <el-button @click="selectHotMap">选取热区</el-button>
+          <!-- <el-button @click="dragToggle = true">选取热区</el-button> -->
           <el-input v-model="cityId" style="width:300px" placeholder="请输入城市ID"></el-input>
           <el-button @click="buildJson">生成json</el-button>
           <el-button @click="toIndex">返回首页</el-button>
@@ -278,6 +278,16 @@
         this.$router.push({
           name: 'index'
         })
+      },
+      // 点击选取热区
+      selectHotMap () {
+        if (!this.isShowImage) {
+          Message.warning({
+            message: '请先上传图片！'
+          })
+          return
+        }
+        this.dragToggle = true
       }
     },
     mounted () {
