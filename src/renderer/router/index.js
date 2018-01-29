@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+const index = () => import('@/pages/index/index.vue')
+const bigData = () => import('@/pages/bigData/bigData.vue')
 
 Vue.use(Router)
 
@@ -7,12 +9,17 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
-      component: require('@/components/LandingPage').default
+      name: 'index',
+      component: index
     },
     {
-      path: '*',
-      redirect: '/'
+      path: '/bigData',
+      name: 'bigData',
+      component: bigData
     }
+    // {
+    //   path: '*',
+    //   redirect: '/'
+    // }
   ]
 })
