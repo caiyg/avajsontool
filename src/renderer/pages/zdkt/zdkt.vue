@@ -1,5 +1,5 @@
 <template>
-  <div id="bigData">
+  <div id="zdkt">
     <div style="overflow:hidden;">
       <div class="img-wrapper" @mousedown="mousedownEvent" @mouseup="mouseupEvent" id="img-wrapper" @mousemove="moveEvent">
         <div class="drag-pic" @click="selectFile" v-if="imgUrl===''">
@@ -388,7 +388,9 @@
     margin: 0;
     padding: 0;
   }
-  .drag-pic {
+
+  #zdkt {
+      .drag-pic {
     text-align: center;
     color:#555;
   }
@@ -396,7 +398,7 @@
     width: @imgWidth;
     height: @imgHeight;
   }
-  .img-wrapper {
+    .img-wrapper {
     position: relative;
     border:1px solid #999;
     width: @imgWidth;
@@ -424,4 +426,6 @@
       margin-right: 20px;
     }
   }
+  }
+
 </style>
